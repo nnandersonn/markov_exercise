@@ -1,8 +1,20 @@
 """Generate Markov text from text files."""
 
-from posixpath import split
-# from random import Random, choice
+import discord
 import random
+import os
+
+
+
+intents = discord.Intents.default()
+# intents.message_content = True
+
+client = discord.Client()
+
+@client.event
+async def on_ready():
+    print(f"We have logged in as {client.user}")
+
 
 
 def open_and_read_file(file_path):
@@ -75,7 +87,7 @@ def make_text(chains):
     return ' '.join(words)
 
 
-input_path = 'green_eggs.txt'
+input_path = 'green-eggs.txt'
 
 # Open the file and turn it into one long string
 input_text = open_and_read_file(input_path)
@@ -86,4 +98,19 @@ chains = make_chains(input_text)
 # Produce random text
 random_text = make_text(chains)
 
-print(random_text)
+def generate_story():
+    chains = make_chains(input_text)
+    random_text = make_text(chains)
+    return(random_text)
+
+# print(random_text)
+
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+
+    if message.content.startswith('story'):
+        await message.channel.send(generate_story())
+
+client.run(os.environ['DISCORD_TOKEN'])
